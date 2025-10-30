@@ -12,33 +12,33 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    # 0) 패키지 경로
+    # 패키지 경로
     pkg_bringup      = get_package_share_directory('ros_gz_example_bringup')
     pkg_gazebo       = get_package_share_directory('ros_gz_example_gazebo')
     pkg_description  = get_package_share_directory('ros_gz_example_description')
     pkg_ros_gz_sim   = get_package_share_directory('ros_gz_sim')
     pkg_application  = get_package_share_directory('ros_gz_example_application')
 
-    # 1) world / model / config 파일 경로
+    # world / model / config 파일 경로
     world_file = os.path.join(pkg_gazebo, 'worlds', 'agriculture_v2.sdf')
     sdf_file   = os.path.join(pkg_description, 'models', 'tracked_v2', 'tracked_v2.sdf')
     bridge_yaml = os.path.join(pkg_bringup, 'config', 'ros_gz_example_bridge.yaml')
     twist_mux_yaml = os.path.join(pkg_bringup, 'config', 'twist_mux.yaml')
     path_yaml  = os.path.join(pkg_bringup, 'config', 'path.yaml')
 
-    # 2) SDF 로봇 기술서 로드 (robot_state_publisher 입력)
+    # SDF 로봇 기술서 로드 (robot_state_publisher 입력)
     with open(sdf_file, 'r') as infp:
         robot_desc = infp.read()
 
-    # 3) termianl 런치
+    # terminal 런치
     with_terms_arg = DeclareLaunchArgument(
         'with_terminals',
         default_value='true',
-        description='open termianls for teleop and state command'
+        description='open terminals for teleop and state command'
     )
     with_terms = LaunchConfiguration('with_terminals')
 
-    # 3) Gazebo (Ignition/GZ) 실행
+    # Gazebo (Ignition/GZ) 실행
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')
@@ -48,7 +48,7 @@ def generate_launch_description():
         }.items(),
     )
 
-    # 4) robot_state_publisher (시뮬 시간 사용)
+    # robot_state_publisher (시뮬 시간 사용)
     robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -60,7 +60,7 @@ def generate_launch_description():
         ],
     )
 
-    # 5) ROS ↔ GZ 브리지 (브리지 설정 파일 사용)
+    # ROS ↔ GZ 브리지 (브리지 설정 파일 사용)
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -72,7 +72,7 @@ def generate_launch_description():
         }],
     )
 
-    # 6) 정적 TF (센서 프레임 고정)
+    # 정적 TF (센서 프레임 고정)
     static_base_prefix_tf = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
@@ -95,7 +95,7 @@ def generate_launch_description():
         output="screen",
     )
 
-    # 7) 로컬/글로벌 EKF (전역 좌표 /odometry/global 제공)
+    # 로컬/글로벌 EKF (전역 좌표 /odometry/global 제공)
     ekf_local_node = Node(
         package="robot_localization",
         executable="ekf_node",
@@ -115,7 +115,7 @@ def generate_launch_description():
         remappings=[('odometry/filtered', 'odometry/global')],
     )
 
-    # 8) twist_mux (우선순위: stop > teleop > auto)
+    # twist_mux (우선순위: stop > teleop > auto)
     twist_mux_node = Node(
         package='twist_mux',
         executable='twist_mux',
@@ -124,7 +124,7 @@ def generate_launch_description():
         parameters=[twist_mux_yaml],
     )
 
-    # 9) State Manager — path.yaml 로드 + 모드 관리 + /ppc/path 퍼블리시
+    # State Manager — path.yaml 로드 + 모드 관리 + /ppc/path 퍼블리시
     state_machine_node = Node(
         package='ros_gz_example_application',
         executable='state_machine.py',
@@ -133,7 +133,7 @@ def generate_launch_description():
         parameters=[path_yaml, {'use_sim_time': True}],
     )
 
-    # 10) Pure Pursuit 컨트롤러 — /ppc/path 구독, /cmd_vel_ppc 퍼블리시
+    # Pure Pursuit 컨트롤러 — /ppc/path 구독, /cmd_vel_ppc 퍼블리시
     pure_pursuit_node = Node(
         package='ros_gz_example_application',
         executable='pure_pursuit_controller.py',
@@ -142,7 +142,7 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}],
     )
 
-    # 12) terminal 실행 (텔레옵 및 상태 명령용)
+    # terminal 실행 (텔레옵 및 상태 명령용)
         # 공통: 새 터미널에서 ROS 환경 다시 source
     bash_setup = (
         'bash -lc "'

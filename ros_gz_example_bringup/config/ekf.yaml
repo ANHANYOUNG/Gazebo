@@ -106,7 +106,7 @@ ekf_global:
                    false, false, false]
     
     # imu0: 로컬 EKF와 동일하게 IMU의 자세, 각속도, 가속도 정보를 사용합니다.
-    imu0: imu
+    imu0: /imu
     imu0_config: [false, false, false,
                   true,  true,  true,
                   false, false, false,

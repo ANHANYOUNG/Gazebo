@@ -36,7 +36,7 @@
   direction: GZ_TO_ROS
 
 - ros_topic_name: "/cmd_vel_out"
-  gz_topic_name: "/model/tracked_v2/cmd_vel_out"
+  gz_topic_name: "/model/tracked_v3/cmd_vel_out"
   ros_type_name: "geometry_msgs/msg/Twist"
   gz_type_name: "gz.msgs.Twist"
   direction: ROS_TO_GZ
@@ -66,7 +66,7 @@
   direction: GZ_TO_ROS
 
 - ros_topic_name: "/joint_states"
-  gz_topic_name: "/world/agriculture_v1/model/tracked_v2/joint_state"
+  gz_topic_name: "/world/agriculture_v1/model/tracked_v3/joint_state"
   ros_type_name: "sensor_msgs/msg/JointState"
   gz_type_name: "gz.msgs.Model"
   direction: GZ_TO_ROS

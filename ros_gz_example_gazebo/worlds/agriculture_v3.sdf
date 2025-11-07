@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.9">
-  <world name="agriculture_v1">
+  <world name="agriculture_v3">
     <physics name="1ms" type="ode">
       <max_step_size>0.002</max_step_size>
       <real_time_factor>1</real_time_factor>
@@ -71,8 +71,8 @@
         <collision name="terrain_collision">
           <geometry>
             <heightmap>
-              <uri>file://media/geometry/agricultural_terrain_v2.png</uri>
-              <size>20 10 0.2</size>
+              <uri>file://media/geometry/agricultural_terrain_v18.png</uri>
+              <size>20 20 0.2</size>
               <pos>0 0 0</pos>
             </heightmap>
           </geometry>
@@ -98,8 +98,8 @@
                 <normal>file://media/materials/textures/flat_normal.png</normal>
                 <size>10</size>
               </texture>
-              <uri>file://media/geometry/agricultural_terrain_v2.png</uri>
-              <size>20 10 0.2</size>
+              <uri>file://media/geometry/agricultural_terrain_v18.png</uri>
+              <size>20 20 0.2</size>
               <pos>0 0 0</pos>
             </heightmap>
           </geometry>
@@ -107,13 +107,13 @@
       </link>
     </model>
 
-    <model name="tracked_v2">
+    <model name="tracked_v3">
       <self_collide>true</self_collide>
-        <pose>-9 3.75 0.05 0 0 0</pose>
+        <pose>-9 9 0.2 0 0 0</pose>
         <!-- <pose>0 0 0 0 0 0</pose> -->
         <!-- <pose>-10 0.75 0.3 0 0 0</pose> -->
       <include merge="true">
-        <uri>package://ros_gz_example_description/models/tracked_v2</uri>
+        <uri>package://ros_gz_example_description/models/tracked_v3</uri>
       </include>
 
       <plugin
@@ -142,13 +142,11 @@
         <right_joint>wheel_R3_joint</right_joint>
         <left_joint>wheel_L4_joint</left_joint>
         <right_joint>wheel_R4_joint</right_joint>
-        <left_joint>wheel_L5_joint</left_joint>
-        <right_joint>wheel_R5_joint</right_joint>
         
-        <wheel_separation>0.57</wheel_separation>
+        <wheel_separation>1.2</wheel_separation>
         <wheel_radius>0.10</wheel_radius>
 
-        <topic>/model/tracked_v2/cmd_vel_out</topic>
+        <topic>/model/tracked_v3/cmd_vel_out</topic>
 
         <max_linear_acceleration>1</max_linear_acceleration>
         <min_linear_acceleration>-1</min_linear_acceleration>

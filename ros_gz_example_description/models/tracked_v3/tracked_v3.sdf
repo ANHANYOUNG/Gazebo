@@ -6,28 +6,28 @@
     <pose>0 0 0 0 0 0</pose>
 
     <link name="chassis_link">
-      <!-- 차체 중심: 지면에서 0.35m 높이에 배치 (바퀴 반지름 0.1m + 0.1m 여유) -->
+      <!-- 차체 중심: 지면에서 0.35m 높이에 배치 (바퀴 반지름 0.1m + 0.15m 여유) -->
       <pose>0 0 0.35 0 0 0</pose>
 
       <inertial>
           <mass>100.0</mass>
-          <!-- 차체 0.5m x 0.5m x 0.4m 기준 관성 모멘트: I = (1/12) * m * (w^2 + h^2) -->
+          <!-- 차체 1.1m x 1.3m x 0.5m 기준 관성 모멘트: I = (1/12) * m * (w^2 + h^2) -->
           <inertia>
-          <ixx>1.54</ixx> <iyy>1.54</iyy> <izz>2.08</izz>
+          <ixx>16.25</ixx> <iyy>12.25</iyy> <izz>28.33</izz>
           <ixy>0.0</ixy> <ixz>0.0</ixz> <iyz>0.0</iyz>
           </inertia>
       </inertial>
 
       <collision name="chassis_collision">
           <geometry>
-          <!-- 차체: 길이 0.51m, 폭 0.8m, 높이 0.4m -->
-          <box><size>0.7 0.8 0.4</size></box>
+          <!-- 차체: 길이 1.1m, 폭 1.3m, 높이 0.5m -->
+          <box><size>1.1 1.3 0.5</size></box>
           </geometry>
       </collision>
 
       <visual name="chassis_visual">
           <geometry>
-          <box><size>0.7 0.8 0.4</size></box>
+          <box><size>1.1 1.3 0.5</size></box>
           </geometry>
           <material>
           <ambient>0.3 0.4 0.9 1</ambient>
@@ -128,8 +128,8 @@
 
 
     <link name="wheel_R1_link">
-        <!-- 전방 우측 바퀴 1: x=0.315m, y=-0.51m (우측 바깥) -->
-        <pose>0.315 -0.51 0.1 1.5708 0 0</pose>
+        <!-- 전방 우측 바퀴 1: x=0.44m, y=-0.751m (우측 바깥) -->
+        <pose>0.44 -0.751 0.1 1.5708 0 0</pose>
 
       <visual name="wheel_R1_visual">
         <geometry>
@@ -217,8 +217,8 @@
 
 
     <link name="wheel_R2_link">
-        <!-- 우측 바퀴 2: x=0.105m -->
-        <pose>0.105 -0.51 0.1 1.5708 0 0</pose>
+        <!-- 우측 바퀴 2: x=0.22m -->
+        <pose>0.22 -0.751 0.1 1.5708 0 0</pose>
 
       <visual name="wheel_R2_visual">
         <geometry>
@@ -306,8 +306,8 @@
 
 
     <link name="wheel_R3_link">
-        <!-- 우측 바퀴 3: x=-0.105m -->
-        <pose>-0.105 -0.51 0.1 1.5708 0 0</pose>
+        <!-- 우측 바퀴 3: x=0m (중앙) -->
+        <pose>0 -0.751 0.1 1.5708 0 0</pose>
 
             <visual name="wheel_R3_visual">
         <geometry>
@@ -395,8 +395,8 @@
 
 
     <link name="wheel_R4_link">
-        <!-- 후방 우측 바퀴 4: x=-0.315m (후방) -->
-        <pose>-0.315 -0.51 0.1 1.5708 0 0</pose>
+        <!-- 우측 바퀴 4: x=-0.22m -->
+        <pose>-0.22 -0.751 0.1 1.5708 0 0</pose>
 
       <visual name="wheel_R4_visual">
         <geometry>
@@ -457,6 +457,95 @@
     <joint name="wheel_R4_joint" type="revolute">
       <parent>chassis_link</parent>
       <child>wheel_R4_link</child>
+
+      <pose>0 0 0 0 0 0</pose>
+
+      <axis>
+        <xyz>0 0 -1</xyz>
+
+        <limit>
+          <lower>-1.79769e+308</lower>
+          <upper>1.79769e+308</upper>
+          <effort>10000.0</effort>
+          <velocity>10000.0</velocity>
+        </limit>
+
+        <dynamics>
+          <damping>0.1</damping> 
+          <friction>0.01</friction> 
+        </dynamics>
+      </axis>
+
+      <physics>
+        <provide_feedback>true</provide_feedback>
+      </physics>
+
+    </joint>
+
+
+    <link name="wheel_R5_link">
+        <!-- 후방 우측 바퀴 5: x=-0.44m (후방) -->
+        <pose>-0.44 -0.751 0.1 1.5708 0 0</pose>
+
+      <visual name="wheel_R5_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.1</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.5 0.5 0.5 1</ambient>
+          <diffuse>0.5 0.5 0.5 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+        </material>
+      </visual>
+
+      <collision name="wheel_R5_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.1</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+
+        <surface>
+          <friction>
+            <ode>
+              <mu>1.2</mu>
+              <mu2>0.7</mu2>
+              <fdir1>1 0 0</fdir1>
+              <slip1>0.0</slip1>
+              <slip2>0.001</slip2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <soft_cfm>0.002</soft_cfm>
+              <soft_erp>0.002</soft_erp>
+              <kp>1000</kp>
+              <kd>500</kd>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.0365</ixx>
+          <iyy>0.0365</iyy>
+          <izz>0.025</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <joint name="wheel_R5_joint" type="revolute">
+      <parent>chassis_link</parent>
+      <child>wheel_R5_link</child>
 
       <pose>0 0 0 0 0 0</pose>
 
@@ -679,8 +768,8 @@
     </joint> -->
 
     <link name="wheel_L1_link">
-        <!-- 전방 좌측 바퀴 1: x=0.315m (전방), y=0.51m (좌측 바깥) -->
-        <pose>0.315 0.51 0.1 1.5708 0 0</pose>
+        <!-- 전방 좌측 바퀴 1: x=0.44m (전방), y=0.751m (좌측 바깥) -->
+        <pose>0.44 0.751 0.1 1.5708 0 0</pose>
 
       <visual name="wheel_L1_visual">
         <geometry>
@@ -768,8 +857,8 @@
 
 
     <link name="wheel_L2_link">
-        <!-- 좌측 바퀴 2: x=0.105m -->
-        <pose>0.105 0.51 0.1 1.5708 0 0</pose>
+        <!-- 좌측 바퀴 2: x=0.22m -->
+        <pose>0.22 0.751 0.1 1.5708 0 0</pose>
 
       <visual name="wheel_L2_visual">
         <geometry>
@@ -857,8 +946,8 @@
 
 
     <link name="wheel_L3_link">
-        <!-- 좌측 바퀴 3: x=-0.105m -->
-        <pose>-0.105 0.51 0.1 1.5708 0 0</pose>
+        <!-- 좌측 바퀴 3: x=0m (중앙) -->
+        <pose>0 0.751 0.1 1.5708 0 0</pose>
 
             <visual name="wheel_L3_visual">
         <geometry>
@@ -946,8 +1035,8 @@
 
 
     <link name="wheel_L4_link">
-        <!-- 후방 좌측 바퀴 4: x=-0.315m (후방) -->
-        <pose>-0.315 0.51 0.1 1.5708 0 0</pose>
+        <!-- 좌측 바퀴 4: x=-0.22m -->
+        <pose>-0.22 0.751 0.1 1.5708 0 0</pose>
 
             <visual name="wheel_L4_visual">
         <geometry>
@@ -1008,6 +1097,95 @@
     <joint name="wheel_L4_joint" type="revolute">
       <parent>chassis_link</parent>
       <child>wheel_L4_link</child>
+
+      <pose>0 0 0 0 0 0</pose>
+
+      <axis>
+        <xyz>0 0 -1</xyz>
+
+        <limit>
+          <lower>-1.79769e+308</lower>
+          <upper>1.79769e+308</upper>
+          <effort>10000.0</effort>
+          <velocity>10000.0</velocity>
+        </limit>
+
+        <dynamics>
+          <damping>0.1</damping> 
+          <friction>0.01</friction> 
+        </dynamics>
+      </axis>
+
+      <physics>
+        <provide_feedback>true</provide_feedback>
+      </physics>
+
+    </joint>
+
+
+    <link name="wheel_L5_link">
+        <!-- 후방 좌측 바퀴 5: x=-0.44m (후방) -->
+        <pose>-0.44 0.751 0.1 1.5708 0 0</pose>
+
+      <visual name="wheel_L5_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.1</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.5 0.5 0.5 1</ambient>
+          <diffuse>0.5 0.5 0.5 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+        </material>
+      </visual>
+
+      <collision name="wheel_L5_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.1</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+
+        <surface>
+          <friction>
+            <ode>
+              <mu>1.2</mu>
+              <mu2>0.7</mu2>
+              <fdir1>1 0 0</fdir1>
+              <slip1>0.0</slip1>
+              <slip2>0.001</slip2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <soft_cfm>0.002</soft_cfm>
+              <soft_erp>0.002</soft_erp>
+              <kp>1000</kp>
+              <kd>500</kd>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+
+      <inertial>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.0365</ixx>
+          <iyy>0.0365</iyy>
+          <izz>0.025</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <joint name="wheel_L5_joint" type="revolute">
+      <parent>chassis_link</parent>
+      <child>wheel_L5_link</child>
 
       <pose>0 0 0 0 0 0</pose>
 

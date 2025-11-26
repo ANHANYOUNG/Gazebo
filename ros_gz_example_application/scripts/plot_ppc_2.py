@@ -634,7 +634,7 @@ class PlotPPC2(Node):
             return
         
         try:
-            data_dir = os.path.expanduser('~/ppc_run_data_v2')
+            data_dir = os.path.expanduser('~/ppc_run_data_real_v2')
             os.makedirs(data_dir, exist_ok=True)
             
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')

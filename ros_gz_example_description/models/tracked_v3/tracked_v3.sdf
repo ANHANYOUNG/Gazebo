@@ -110,7 +110,7 @@
 
       <sensor name="navsat_sensor" type="navsat">
         <always_on>true</always_on>
-        <update_rate>10.0</update_rate>
+        <update_rate>5.0</update_rate> <!-- 주파수 현실에 맞게 수정 -->
         <topic>navsat</topic>
         <visualize>false</visualize>
           <pose>0.1 0 0 0 0 0</pose>

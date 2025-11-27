@@ -36,7 +36,7 @@ class PlotPPC2(Node):
             'motor_cmd_vel_sim_2.py': 'Angular_Priority',
             'motor_cmd_vel_sim_3.py': 'Linear_Priority',
             # Real
-            'motor_cmd_vel_trx.py': 'Baseline',
+            'motor_cmd_vel_real.py': 'Baseline',
             'motor_cmd_vel_real_proportional.py': 'Proportional',
             'motor_cmd_vel_real_linear.py': 'Linear_Priority',
         }
@@ -620,7 +620,7 @@ class PlotPPC2(Node):
         ttr_values = [e['TTR'] for e in successful if e['TTR'] is not None]
         
         return {
-            'total_events': len(self.ttr_events),
+            'total_events': len(self.ttr_events),   
             'successful_recoveries': len(successful),
             'failed_recoveries': len(failed),
             'avg_ttr': np.mean(ttr_values) if ttr_values else 0.0,

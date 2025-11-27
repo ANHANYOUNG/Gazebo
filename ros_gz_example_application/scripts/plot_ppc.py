@@ -36,7 +36,7 @@ class PlotPPC(Node):
             'motor_cmd_vel_sim_2.py': 'Angular_Priority',
             'motor_cmd_vel_sim_3.py': 'Linear_Priority',
             # Real
-            'motor_cmd_vel_trx.py': 'Baseline',
+            'motor_cmd_vel_real.py': 'Baseline',
             'motor_cmd_vel_real_proportional.py': 'Proportional',
             'motor_cmd_vel_real_linear.py': 'Linear_Priority',
         }

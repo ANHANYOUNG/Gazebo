@@ -77,7 +77,7 @@ def generate_launch_description():
         output='screen'
     )
 
-    # 시뮬레이션 모델의 TF 설정을 위한 정적 변환 노드들
+    # Static transform nodes for setting TFs of simulation model
     static_base_prefix_tf = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
@@ -102,7 +102,6 @@ def generate_launch_description():
 
 
     return LaunchDescription([
-        # --- 시뮬레이션 (노트북) 측 실행 노드 ---
         gz_sim,
         bridge,
         robot_state_publisher,

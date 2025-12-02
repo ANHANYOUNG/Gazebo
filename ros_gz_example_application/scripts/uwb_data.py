@@ -27,7 +27,7 @@ class UWBDataLogger(Node):
         
         self.get_logger().info('[UWB_DATA] Node starting...')
         
-        # ========== 데이터 디렉토리 생성 ==========
+        # Files to save data
         self.base_dir = os.path.expanduser('~/uwb_data')
         self.uwb_dir = os.path.join(self.base_dir, 'uwb')
         self.kalman_dir = os.path.join(self.base_dir, 'kalman')
@@ -37,58 +37,47 @@ class UWBDataLogger(Node):
         
         self.get_logger().info(f'[UWB_DATA] Data directory: {self.base_dir}')
         
-        # ========== 파일 생성 (타임스탬프 기반) ==========
+        # Files creation (timestamp-based)
         timestamp = datetime.now().strftime('%Y-%m-%d_%H%M%S')
         
         self.uwb_file_path = os.path.join(self.uwb_dir, f'uwb_{timestamp}.csv')
         self.ekf_file_path = os.path.join(self.kalman_dir, f'ekf_{timestamp}.csv')
         
-        # CSV 파일 열기
+        # Open CSV files
         self.uwb_file = open(self.uwb_file_path, 'w', newline='')
         self.ekf_file = open(self.ekf_file_path, 'w', newline='')
         
-        # CSV Writer 생성
+        # Create CSV Writers
         self.uwb_writer = csv.writer(self.uwb_file)
         self.ekf_writer = csv.writer(self.ekf_file)
         
-        # CSV 헤더 작성
+        # Write CSV headers
         self.uwb_writer.writerow(['timestamp', 'x', 'y'])
         self.ekf_writer.writerow(['timestamp', 'x', 'y'])
         
         self.get_logger().info(f'[UWB_DATA] UWB file: {self.uwb_file_path}')
         self.get_logger().info(f'[UWB_DATA] EKF file: {self.ekf_file_path}')
         
-        # ========== 데이터 버퍼 (시각화용) ==========
-        max_points = 1000  # 최근 1000개 포인트만 표시
+        # Data buffers (for visualization)
+        max_points = 1000  # Show only the most recent 1000 points
         self.uwb_buffer = deque(maxlen=max_points)
         self.ekf_buffer = deque(maxlen=max_points)
         
-        # 버퍼 락 (thread-safe)
+        # Buffer lock (thread-safe)
         self.buffer_lock = threading.Lock()
         
-        # ========== ROS2 Subscribers ==========
-        self.create_subscription(
-            PoseWithCovarianceStamped,
-            '/abs_xy',
-            self.uwb_callback,
-            10
-        )
-        
-        self.create_subscription(
-            Odometry,
-            '/odometry/ekf_single',
-            self.ekf_callback,
-            10
-        )
+        # Subscriptions
+        self.create_subscription(PoseWithCovarianceStamped,'/abs_xy',self.uwb_callback,10)
+        self.create_subscription(Odometry,'/odometry/ekf_single',self.ekf_callback,10)
         
         self.get_logger().info('[UWB_DATA] Subscribed to /abs_xy and /odometry/ekf_single')
         
-        # ========== 통계 변수 ==========
+        # Statistics
         self.uwb_count = 0
         self.ekf_count = 0
         self.start_time = self.get_clock().now()
         
-        # ========== PyQtGraph 설정 ==========
+        # PyQtGraph Settings
         # The QApplication must be created in the main thread. setup_plot()
         # will create windows / timers assuming QApplication already exists.
         self.app = None
@@ -101,36 +90,36 @@ class UWBDataLogger(Node):
         else:
             self.get_logger().warn('[UWB_DATA] Running in CSV-only mode (no visualization)')
         
-        # ========== Shutdown Handler ==========
+        # Shutdown Handler
         # Don't use signal handler with Qt - let Qt handle it
         # signal.signal(signal.SIGINT, self.signal_handler)
         
         self.get_logger().info('[UWB_DATA] Node initialized successfully')
     
-    # ========== Callbacks ==========
+    # Callbacks
     def uwb_callback(self, msg: PoseWithCovarianceStamped):
-        """UWB 데이터 수신 및 저장"""
+        """Receive and save UWB data"""
         try:
-            # 타임스탬프
+            # Timestamp
             stamp = msg.header.stamp
             timestamp = stamp.sec + stamp.nanosec * 1e-9
             
-            # 위치 데이터
+            # Position data
             x = msg.pose.pose.position.x
             y = msg.pose.pose.position.y
             z = msg.pose.pose.position.z
             
-            # CSV 기록
+            # Write to CSV
             self.uwb_writer.writerow([timestamp, x, y])
-            self.uwb_file.flush()  # 즉시 디스크에 기록
+            self.uwb_file.flush()  # Immediately write to disk
             
-            # 버퍼에 추가 (시각화용)
+            # Add to buffer (for visualization)
             with self.buffer_lock:
                 self.uwb_buffer.append((timestamp, x, y))
             
             self.uwb_count += 1
             
-            # 주기적 로그 (100개마다)
+            # Periodic log (every 100 samples)
             if self.uwb_count % 100 == 0:
                 self.get_logger().info(
                     f'[UWB_DATA] UWB: {self.uwb_count} samples | '
@@ -141,34 +130,34 @@ class UWBDataLogger(Node):
             self.get_logger().error(f'[UWB_DATA] Error in uwb_callback: {e}')
     
     def ekf_callback(self, msg: Odometry):
-        """EKF 데이터 수신 및 저장"""
+        """Receive and save EKF data"""
         try:
-            # 타임스탬프
+            # Timestamp
             stamp = msg.header.stamp
             timestamp = stamp.sec + stamp.nanosec * 1e-9
             
-            # 위치 데이터
+            # Position data
             x = msg.pose.pose.position.x
             y = msg.pose.pose.position.y
             z = msg.pose.pose.position.z
             
-            # Yaw 계산
+            # Calculate Yaw
             q = msg.pose.pose.orientation
             import math
             from tf_transformations import euler_from_quaternion
             _, _, yaw = euler_from_quaternion([q.x, q.y, q.z, q.w])
             
-            # CSV 기록
+            # Write to CSV
             self.ekf_writer.writerow([timestamp, x, y])
-            self.ekf_file.flush()  # 즉시 디스크에 기록
+            self.ekf_file.flush()  # Immediately write to disk
             
-            # 버퍼에 추가 (시각화용)
+            # Add to buffer (for visualization)
             with self.buffer_lock:
                 self.ekf_buffer.append((timestamp, x, y))
             
             self.ekf_count += 1
             
-            # 주기적 로그 (100개마다)
+            # Periodic log (every 100 samples)
             if self.ekf_count % 100 == 0:
                 self.get_logger().info(
                     f'[UWB_DATA] EKF: {self.ekf_count} samples | '
@@ -178,17 +167,12 @@ class UWBDataLogger(Node):
         except Exception as e:
             self.get_logger().error(f'[UWB_DATA] Error in ekf_callback: {e}')
     
-    # ========== PyQtGraph 시각화 ==========
+    # PyQtGraph Visualization
     def setup_plot(self):
-        """Create PyQtGraph widgets and start update timer.
-        Assumes a QApplication was created in the main thread before calling this.
-        """
         self.get_logger().info('[UWB_DATA] Initializing PyQtGraph window...')
-        # The QApplication must already exist (created in main)
         try:
             self.app = QtWidgets.QApplication.instance()
             if self.app is None:
-                # defensive: should not happen if main created the app
                 self.app = QtWidgets.QApplication(sys.argv)
 
             # Main window
@@ -219,24 +203,24 @@ class UWBDataLogger(Node):
             self.get_logger().error(f'[UWB_DATA] Error initializing plot: {e}')
     
     def _update_plot(self):
-        """Plot 업데이트"""
+        """Update the plot"""
         try:
             with self.buffer_lock:
-                # UWB 데이터
+                # UWB data
                 if self.uwb_buffer:
                     uwb_data = list(self.uwb_buffer)
                     uwb_x = [d[1] for d in uwb_data]
                     uwb_y = [d[2] for d in uwb_data]
                     self.uwb_curve.setData(uwb_x, uwb_y)
                 
-                # EKF 데이터
+                # EKF data
                 if self.ekf_buffer:
                     ekf_data = list(self.ekf_buffer)
                     ekf_x = [d[1] for d in ekf_data]
                     ekf_y = [d[2] for d in ekf_data]
                     self.ekf_curve.setData(ekf_x, ekf_y)
             
-            # 윈도우 타이틀 업데이트
+            # Update window title with stats
             if hasattr(self, 'win'):
                 elapsed = (self.get_clock().now() - self.start_time).nanoseconds * 1e-9
                 self.win.setWindowTitle(
@@ -247,12 +231,12 @@ class UWBDataLogger(Node):
         except Exception as e:
             self.get_logger().error(f'[UWB_DATA] Error updating plot: {e}')
     
-    # ========== Shutdown ==========
+    # Shutdown
     def cleanup(self):
-        """안전한 종료 처리"""
+        """Safe shutdown procedure"""
         self.get_logger().info('[UWB_DATA] Cleaning up...')
         
-        # 통계 출력
+        # Print statistics
         elapsed = (self.get_clock().now() - self.start_time).nanoseconds * 1e-9
         self.get_logger().info(
             f'[UWB_DATA] Session statistics:\n'
@@ -263,7 +247,7 @@ class UWBDataLogger(Node):
             f'  - EKF rate: {self.ekf_count/elapsed:.1f} Hz'
         )
         
-        # CSV 파일 닫기
+        # Close CSV files
         try:
             self.uwb_file.close()
             self.ekf_file.close()
@@ -271,7 +255,7 @@ class UWBDataLogger(Node):
         except Exception as e:
             self.get_logger().error(f'[UWB_DATA] Error closing files: {e}')
         
-        # PyQtGraph 종료
+        # Close PyQtGraph
         if PYQTGRAPH_AVAILABLE and self.app:
             try:
                 self.app.quit()
